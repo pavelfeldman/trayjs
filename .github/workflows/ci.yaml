@@ -1,0 +1,84 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  build-darwin:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: macos-15
+            arch: x86_64
+            pkg: darwin-x64
+          - os: macos-latest
+            arch: arm64
+            pkg: darwin-arm64
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Build
+        run: scripts/build-mac.sh ${{ matrix.arch }} ${{ matrix.pkg }}
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.pkg }}
+          path: packages/${{ matrix.pkg }}/
+
+  build-win:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - pkg: win32-x64
+            arch: x64
+          - pkg: win32-arm64
+            arch: arm64
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Setup MSVC
+        uses: ilammy/msvc-dev-cmd@v1
+        with:
+          arch: ${{ matrix.arch }}
+      - name: Build
+        shell: bash
+        env:
+          MSYS2_ARG_CONV_EXCL: "*"
+        run: ./scripts/build-win.sh ${{ matrix.pkg }}
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.pkg }}
+          path: packages/${{ matrix.pkg }}/bin/tray.exe
+
+  build-linux:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: ubuntu-24.04
+            pkg: linux-x64
+          - os: ubuntu-24.04-arm
+            pkg: linux-arm64
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install dependencies
+        run: sudo apt-get update && sudo apt-get install -y libayatana-appindicator3-dev
+
+      - name: Build
+        run: scripts/build-linux.sh ${{ matrix.pkg }}
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.pkg }}
+          path: packages/${{ matrix.pkg }}/
