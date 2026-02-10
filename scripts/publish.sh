@@ -20,12 +20,12 @@ NATIVE_PACKAGES=(linux-x64 linux-arm64 darwin-x64 darwin-arm64 win32-x64 win32-a
 missing=()
 for pkg in "${NATIVE_PACKAGES[@]}"; do
   if [[ "$pkg" == win32-* ]]; then
-    bin="$ROOT_DIR/packages/$pkg/bin/tray.exe"
+    bin="$ROOT_DIR/binaries/$pkg/bin/tray.exe"
   else
-    bin="$ROOT_DIR/packages/$pkg/bin/tray"
+    bin="$ROOT_DIR/binaries/$pkg/bin/tray"
   fi
   if [[ ! -f "$bin" ]]; then
-    missing+=("packages/$pkg/bin/tray${pkg##win32-*}")
+    missing+=("binaries/$pkg/bin/tray${pkg##win32-*}")
   fi
 done
 
@@ -39,11 +39,11 @@ fi
 # Publish native packages (cd into each to avoid workspace resolution).
 for pkg in "${NATIVE_PACKAGES[@]}"; do
   echo "Publishing @trayjs/$pkg..."
-  (cd "$ROOT_DIR/packages/$pkg" && npm publish $DRY_RUN --access public)
+  (cd "$ROOT_DIR/binaries/$pkg" && npm publish $DRY_RUN --access public)
 done
 
 # Publish main package.
 echo "Publishing @trayjs/trayjs..."
-(cd "$ROOT_DIR/packages/trayjs" && npm publish $DRY_RUN --access public)
+(cd "$ROOT_DIR" && npm publish $DRY_RUN --access public)
 
 echo "Done."

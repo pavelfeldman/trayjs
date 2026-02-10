@@ -2,7 +2,7 @@ import { execFile } from 'node:child_process';
 import { readFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { Tray } from '@trayjs/trayjs';
+import { Tray } from '../dist/index.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const icon = {
@@ -21,26 +21,29 @@ const tray = new Tray({
       default: console.log(`clicked: ${id}`); break;
     }
   },
+  onMenuRequested: () => {
+    console.log('menu requested');
+    return [
+      { id: 'terminal', title: 'Open Terminal' },
+      { id: 'files',    title: 'File Manager' },
+      { id: 'open-recent', title: 'Open Recent', items: [
+        { id: 'recent-1', title: '~/Projects/app' },
+        { id: 'recent-2', title: '~/Documents/notes.md' },
+        { id: 'recent-3', title: '~/Downloads/archive.zip' },
+        { separator: true },
+        { id: 'clear-recent', title: 'Clear Recent' },
+      ]},
+      { separator: true },
+      { id: 'help', title: 'Help', items: [
+        { id: 'docs', title: 'Documentation' },
+        { id: 'about', title: 'About' },
+      ]},
+      { id: 'quit', title: 'Quit' },
+    ];
+  }
 });
 
 tray.on('ready', () => {
-  tray.setMenu([
-    { id: 'terminal', title: 'Open Terminal' },
-    { id: 'files',    title: 'File Manager' },
-    { id: 'open-recent', title: 'Open Recent', items: [
-      { id: 'recent-1', title: '~/Projects/app' },
-      { id: 'recent-2', title: '~/Documents/notes.md' },
-      { id: 'recent-3', title: '~/Downloads/archive.zip' },
-      { separator: true },
-      { id: 'clear-recent', title: 'Clear Recent' },
-    ]},
-    { separator: true },
-    { id: 'help', title: 'Help', items: [
-      { id: 'docs', title: 'Documentation' },
-      { id: 'about', title: 'About' },
-    ]},
-    { id: 'quit', title: 'Quit' },
-  ]);
 });
 
 function openTerminal() {

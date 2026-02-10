@@ -7,10 +7,10 @@ set -euo pipefail
 PKG="${1:?Usage: build-win.sh <pkg>}"
 
 ROOT_DIR="$(cd "$(dirname "$0")/.." && pwd)"
-OUT="$(cygpath -w "$ROOT_DIR/packages/$PKG/bin/tray.exe")"
-SRC="$(cygpath -w "$ROOT_DIR/src/win")"
+OUT="$(cygpath -w "$ROOT_DIR/binaries/$PKG/bin/tray.exe")"
+SRC="$(cygpath -w "$ROOT_DIR/src-win")"
 
-mkdir -p "$ROOT_DIR/packages/$PKG/bin"
+mkdir -p "$ROOT_DIR/binaries/$PKG/bin"
 
 # Determine linker machine flag
 case "$PKG" in

@@ -2,7 +2,7 @@
 set -euo pipefail
 
 # Downloads native binaries from a GitHub Actions run and places them
-# into the git-ignored packages/*/bin/ directories.
+# into the git-ignored binaries/*/bin/ directories.
 #
 # Usage:
 #   ./scripts/download-artifacts.sh <run-id>
@@ -29,20 +29,20 @@ gh run download "$RUN_ID" --repo "$REPO" --dir "$TMPDIR"
 
 for pkg in "${PACKAGES[@]}"; do
   echo "  $pkg"
-  mkdir -p "packages/$pkg/bin"
+  mkdir -p "binaries/$pkg/bin"
   if [[ -d "$TMPDIR/$pkg/bin" ]]; then
     # Unix artifacts: full package with bin/ subdirectory
-    cp -f "$TMPDIR/$pkg/bin/"* "packages/$pkg/bin/"
+    cp -f "$TMPDIR/$pkg/bin/"* "binaries/$pkg/bin/"
   else
     # Windows artifacts: bare .exe in artifact root
-    cp -f "$TMPDIR/$pkg/"*.exe "packages/$pkg/bin/"
+    cp -f "$TMPDIR/$pkg/"*.exe "binaries/$pkg/bin/"
   fi
 done
 
 # Make Unix binaries executable.
 for pkg in "${PACKAGES[@]}"; do
-  bin="packages/$pkg/bin/tray"
+  bin="binaries/$pkg/bin/tray"
   [[ -f "$bin" ]] && chmod +x "$bin"
 done
 
-echo "Done. Binaries placed in packages/*/bin/"
+echo "Done. Binaries placed in binaries/*/bin/"

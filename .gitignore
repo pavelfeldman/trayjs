@@ -1,4 +1,3 @@
 /node_modules/
-packages/*/node_modules/
-packages/*/bin/
-packages/trayjs/dist/
+/dist/
+binaries/*/bin/

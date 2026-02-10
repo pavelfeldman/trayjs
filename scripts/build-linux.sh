@@ -7,8 +7,8 @@ set -euo pipefail
 PKG="${1:?Usage: build-linux.sh <pkg>}"
 
 ROOT_DIR="$(cd "$(dirname "$0")/.." && pwd)"
-OUT="$ROOT_DIR/packages/$PKG/bin/tray"
-SRC="$ROOT_DIR/src/linux"
+OUT="$ROOT_DIR/binaries/$PKG/bin/tray"
+SRC="$ROOT_DIR/src-linux"
 
 mkdir -p "$(dirname "$OUT")"
 

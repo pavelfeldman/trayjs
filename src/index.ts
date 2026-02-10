@@ -55,8 +55,8 @@ function getBinaryPath(): string {
     const pkgJson = require.resolve(`${pkg}/package.json`);
     return join(dirname(pkgJson), 'bin', BIN_NAME);
   } catch {
-    // Monorepo dev: binary is in sibling platform package.
-    return join(__dirname, '..', key, 'bin', BIN_NAME);
+    // Dev: binary is in native/<key>/bin/.
+    return join(__dirname, '..', 'binaries', key, 'bin', BIN_NAME);
   }
 }
 
