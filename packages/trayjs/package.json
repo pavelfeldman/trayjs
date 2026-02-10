@@ -3,10 +3,18 @@
   "version": "0.0.7",
   "license": "Apache-2.0",
   "type": "module",
-  "exports": "./index.mjs",
+  "exports": {
+    "import": "./dist/index.js",
+    "types": "./dist/index.d.ts"
+  },
+  "types": "./dist/index.d.ts",
   "files": [
-    "index.mjs"
+    "dist"
   ],
+  "scripts": {
+    "build": "tsc",
+    "watch": "tsc --watch"
+  },
   "optionalDependencies": {
     "@trayjs/linux-x64": "0.0.7",
     "@trayjs/linux-arm64": "0.0.7",
