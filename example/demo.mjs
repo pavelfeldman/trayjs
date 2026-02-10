@@ -1,13 +1,12 @@
 import { execFile } from 'node:child_process';
-import { readFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { Tray } from '../dist/index.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const icon = {
-  png: readFileSync(join(__dirname, 'icon.png')),
-  ico: readFileSync(join(__dirname, 'icon.ico')),
+  png: join(__dirname, 'icon.png'),
+  ico: join(__dirname, 'icon.ico'),
 };
 
 const tray = new Tray({

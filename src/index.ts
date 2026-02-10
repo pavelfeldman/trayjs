@@ -3,6 +3,7 @@ import { createInterface, Interface } from 'node:readline';
 import { createRequire } from 'node:module';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { readFileSync } from 'node:fs';
 import { EventEmitter } from 'node:events';
 
 const require = createRequire(import.meta.url);
@@ -30,8 +31,8 @@ export interface MenuItem {
 }
 
 export interface Icon {
-  png: Buffer;
-  ico: Buffer;
+  png: string;
+  ico: string;
 }
 
 export interface TrayOptions {
@@ -42,7 +43,8 @@ export interface TrayOptions {
 }
 
 function resolveIcon(icon: Icon): Buffer {
-  return process.platform === 'win32' ? icon.ico : icon.png;
+  const path = process.platform === 'win32' ? icon.ico : icon.png;
+  return readFileSync(path);
 }
 
 function getBinaryPath(): string {
