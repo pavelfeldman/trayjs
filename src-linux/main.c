@@ -26,6 +26,8 @@ static pthread_mutex_t  gOutputLock = PTHREAD_MUTEX_INITIALIZER;
 static char            *gIconDir;
 static int              gIconSeq;
 static gboolean         gBuildingMenu;
+static GObject         *gDbusmenuRoot;
+static gulong           gAboutToShowId;
 
 /* -----------------------------------------------------------------------
  * JSON output
@@ -114,8 +116,39 @@ static void onActivate(GtkMenuItem *item, gpointer data) {
     }
 }
 
-static void onMenuShow(GtkWidget *w, gpointer d) {
+/*
+ * Hook into the dbusmenu "about-to-show" signal on the root menuitem.
+ * AppIndicator exports the menu over DBus; the desktop shell renders it.
+ * GTK "show" never fires from user interaction, so we use the dbusmenu
+ * layer instead.  All access is through GObject properties so no extra
+ * headers are needed.
+ */
+static void onAboutToShow(GObject *item, gpointer d) {
     emit("menuRequested", NULL);
+}
+
+static void connectAboutToShow(void);
+
+static gboolean deferredConnectAboutToShow(gpointer data) {
+    connectAboutToShow();
+    return G_SOURCE_REMOVE;
+}
+
+static void connectAboutToShow(void) {
+    if (gDbusmenuRoot && gAboutToShowId) {
+        g_signal_handler_disconnect(gDbusmenuRoot, gAboutToShowId);
+        g_object_unref(gDbusmenuRoot);
+        gDbusmenuRoot = NULL;
+        gAboutToShowId = 0;
+    }
+    GObject *server = NULL;
+    g_object_get(G_OBJECT(gIndicator), "dbus-menu-server", &server, NULL);
+    if (!server) return;
+    g_object_get(server, "root-node", &gDbusmenuRoot, NULL);
+    g_object_unref(server);
+    if (!gDbusmenuRoot) return;
+    gAboutToShowId = g_signal_connect(gDbusmenuRoot, "about-to-show",
+                                      G_CALLBACK(onAboutToShow), NULL);
 }
 
 static void buildMenuItems(GtkMenuShell *shell, cJSON *items) {
@@ -174,10 +207,10 @@ static gboolean processCmd(gpointer data) {
             gtk_menu_shell_append(GTK_MENU_SHELL(newMenu), ph);
         }
         gtk_widget_show_all(newMenu);
-        g_signal_connect(newMenu, "show", G_CALLBACK(onMenuShow), NULL);
         gtk_widget_destroy(gMenu);
         gMenu = newMenu;
         app_indicator_set_menu(gIndicator, GTK_MENU(gMenu));
+        connectAboutToShow();
         gBuildingMenu = FALSE;
     } else if (!strcmp(meth, "setIcon")) {
         const char *b64 = cJSON_GetStringValue(cJSON_GetObjectItem(p, "base64"));
@@ -198,11 +231,6 @@ static gboolean processCmd(gpointer data) {
     } else if (!strcmp(meth, "setTooltip")) {
         const char *text = cJSON_GetStringValue(cJSON_GetObjectItem(p, "text"));
         if (text) app_indicator_set_title(gIndicator, text);
-    } else if (!strcmp(meth, "quit")) {
-        app_indicator_set_status(gIndicator, APP_INDICATOR_STATUS_PASSIVE);
-        cJSON_Delete(m);
-        gtk_main_quit();
-        return G_SOURCE_REMOVE;
     }
 
     cJSON_Delete(m);
@@ -212,6 +240,12 @@ static gboolean processCmd(gpointer data) {
 /* -----------------------------------------------------------------------
  * Stdin reader thread
  * ----------------------------------------------------------------------- */
+static gboolean onStdinEof(gpointer data) {
+    app_indicator_set_status(gIndicator, APP_INDICATOR_STATUS_PASSIVE);
+    gtk_main_quit();
+    return G_SOURCE_REMOVE;
+}
+
 static void *stdinReader(void *arg) {
     char *line = NULL; size_t cap = 0; ssize_t len;
     while ((len = getline(&line, &cap, stdin)) > 0) {
@@ -221,7 +255,7 @@ static void *stdinReader(void *arg) {
         if (m) g_idle_add(processCmd, m);
     }
     free(line);
-    g_idle_add((GSourceFunc)gtk_main_quit, NULL);
+    g_idle_add(onStdinEof, NULL);
     return NULL;
 }
 
@@ -270,8 +304,11 @@ int main(int argc, char **argv) {
     gtk_widget_set_sensitive(ph, FALSE);
     gtk_menu_shell_append(GTK_MENU_SHELL(gMenu), ph);
     gtk_widget_show_all(gMenu);
-    g_signal_connect(gMenu, "show", G_CALLBACK(onMenuShow), NULL);
     app_indicator_set_menu(gIndicator, GTK_MENU(gMenu));
+
+    /* Defer hooking about-to-show so the shell's initial AboutToShow
+       query (fired during indicator registration) is ignored. */
+    g_timeout_add(200, deferredConnectAboutToShow, NULL);
 
     emit("ready", NULL);
 

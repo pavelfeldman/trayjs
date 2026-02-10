@@ -49,17 +49,14 @@ function resolveIcon(icon: Icon): Buffer {
 
 function getBinaryPath(): string {
   const key = `${process.platform}-${process.arch}`;
+  if (process.env.DEV)
+    return join(__dirname, '..', 'binaries', key, 'bin', BIN_NAME);
+
   const pkg = PLATFORMS[key];
   if (!pkg)
     throw new Error(`@trayjs/trayjs: unsupported platform ${key}`);
-  try {
-    // Published: resolve from installed optional dependency.
-    const pkgJson = require.resolve(`${pkg}/package.json`);
-    return join(dirname(pkgJson), 'bin', BIN_NAME);
-  } catch {
-    // Dev: binary is in native/<key>/bin/.
-    return join(__dirname, '..', 'binaries', key, 'bin', BIN_NAME);
-  }
+  const pkgJson = require.resolve(`${pkg}/package.json`);
+  return join(dirname(pkgJson), 'bin', BIN_NAME);
 }
 
 export class Tray extends EventEmitter {
@@ -99,7 +96,6 @@ export class Tray extends EventEmitter {
           this.setIcon(this.#pendingIcon);
           this.#pendingIcon = null;
         }
-        await this.#refreshMenu();
         this.emit('ready');
         break;
       case 'menuRequested':
@@ -134,6 +130,6 @@ export class Tray extends EventEmitter {
   }
 
   quit(): void {
-    this.#send({ method: 'quit' });
+    this.#proc.stdin!.end();
   }
 }

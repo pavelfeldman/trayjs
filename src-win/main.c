@@ -233,7 +233,7 @@ static LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lPara
             } else if (!strcmp(meth, "setTooltip")) {
                 MultiByteToWideChar(CP_UTF8, 0, cJSON_GetStringValue(cJSON_GetObjectItem(p, "text")), -1, gNid.szTip, MAX_TOOLTIP);
                 Shell_NotifyIconW(NIM_MODIFY, &gNid);
-            } else if (!strcmp(meth, "quit")) { PostQuitMessage(0); }
+            }
             cJSON_Delete(m); break;
         }
         case WM_DESTROY: 

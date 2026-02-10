@@ -121,8 +121,6 @@ static void stdinReaderThread(void) {
                         buildMenuItems(gMenu, params[@"items"]);
                     } else if ([method isEqualToString:@"setTooltip"]) {
                         gStatusItem.button.toolTip = params[@"text"];
-                    } else if ([method isEqualToString:@"quit"]) {
-                        [NSApp terminate:nil];
                     }
                 });
             }

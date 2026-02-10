@@ -37,7 +37,7 @@ const tray = new Tray({
         { id: 'docs', title: 'Documentation' },
         { id: 'about', title: 'About' },
       ]},
-      { id: 'quit', title: 'Quit' },
+      { id: 'quit', title: 'Quit ' + Date.now() },
     ];
   }
 });
