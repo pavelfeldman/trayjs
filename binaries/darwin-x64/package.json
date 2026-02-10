@@ -1,6 +1,6 @@
 {
   "name": "@trayjs/darwin-x64",
-  "version": "0.0.8",
+  "version": "0.0.9",
   "license": "Apache-2.0",
   "os": [
     "darwin"

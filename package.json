@@ -1,11 +1,12 @@
 {
   "name": "@trayjs/trayjs",
-  "version": "0.0.8",
+  "version": "0.0.9",
   "license": "Apache-2.0",
   "type": "module",
   "exports": {
+    "types": "./dist/index.d.ts",
     "import": "./dist/index.js",
-    "types": "./dist/index.d.ts"
+    "default": "./dist/index.js"
   },
   "types": "./dist/index.d.ts",
   "files": [
@@ -21,11 +22,11 @@
     "typescript": "^5.7"
   },
   "optionalDependencies": {
-    "@trayjs/linux-x64": "0.0.8",
-    "@trayjs/linux-arm64": "0.0.8",
-    "@trayjs/darwin-x64": "0.0.8",
-    "@trayjs/darwin-arm64": "0.0.8",
-    "@trayjs/win32-x64": "0.0.8",
-    "@trayjs/win32-arm64": "0.0.8"
+    "@trayjs/linux-x64": "0.0.9",
+    "@trayjs/linux-arm64": "0.0.9",
+    "@trayjs/darwin-x64": "0.0.9",
+    "@trayjs/darwin-arm64": "0.0.9",
+    "@trayjs/win32-x64": "0.0.9",
+    "@trayjs/win32-arm64": "0.0.9"
   }
 }
