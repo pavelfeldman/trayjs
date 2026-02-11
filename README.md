@@ -6,7 +6,7 @@ Cross-platform system tray for Node.js. Works on Linux, macOS and Windows.
 
 | Package | Description |
 |---------|-------------|
-| [@trayjs/trayjs](packages/trayjs) | Node.js API |
+| @trayjs/trayjs | Node.js API |
 | @trayjs/linux-x64 | Native binary for Linux x64 |
 | @trayjs/linux-arm64 | Native binary for Linux arm64 |
 | @trayjs/darwin-x64 | Native binary for macOS x64 |
@@ -21,14 +21,17 @@ npm install @trayjs/trayjs
 ```
 
 ```js
-import { readFileSync } from 'node:fs';
 import { Tray } from '@trayjs/trayjs';
 
 const tray = new Tray({
   tooltip: 'My App',
-  icon: readFileSync('icon.png'),
+  icon: { png: 'icon.png', ico: 'icon.ico' },
   onMenuRequested: () => [
     { id: 'open', title: 'Open' },
+    { id: 'recent', title: 'Recent', items: [
+      { id: 'file1', title: '~/notes.md' },
+      { id: 'file2', title: '~/todo.txt' },
+    ]},
     { separator: true },
     { id: 'quit', title: 'Quit' },
   ],
@@ -46,10 +49,17 @@ tray.on('close', () => process.exit(0));
 
 | Option | Type | Description |
 |--------|------|-------------|
-| `icon` | `Buffer` | PNG icon buffer |
+| `icon` | `Icon` | Icon file paths (see `Icon` below) |
 | `tooltip` | `string` | Tray tooltip text |
 | `onMenuRequested` | `() => MenuItem[] \| Promise<MenuItem[]>` | Called every time the tray menu is opened |
 | `onClicked` | `(id: string) => void` | Called when a menu item is clicked |
+
+### `Icon`
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `png` | `string` | Path to PNG icon file (used on macOS and Linux) |
+| `ico` | `string` | Path to ICO icon file (used on Windows) |
 
 ### `MenuItem`
 
@@ -61,10 +71,12 @@ tray.on('close', () => process.exit(0));
 | `enabled` | `boolean` | Clickable (default `true`) |
 | `checked` | `boolean` | Show check mark |
 | `separator` | `boolean` | Render as separator line |
+| `items` | `MenuItem[]` | Submenu items |
 
 ### Methods
 
-- `tray.setIcon(pngBuffer)` — update the icon at runtime
+- `tray.setIcon(icon)` — update the icon at runtime (takes an `Icon` object)
+- `tray.setMenu(items)` — set menu items directly
 - `tray.setTooltip(text)` — update the tooltip at runtime
 - `tray.quit()` — close the tray
 
