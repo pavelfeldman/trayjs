@@ -1,7 +1,16 @@
 {
   "name": "@trayjs/trayjs",
   "version": "0.0.9",
+  "description": "Cross-platform system tray library for Node.js",
   "license": "Apache-2.0",
+  "homepage": "https://www.npmjs.com/package/@trayjs/trayjs",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/pavelfeldman/trayjs.git"
+  },
+  "bugs": {
+    "url": "https://github.com/pavelfeldman/trayjs/issues"
+  },
   "type": "module",
   "exports": {
     "types": "./dist/index.d.ts",
